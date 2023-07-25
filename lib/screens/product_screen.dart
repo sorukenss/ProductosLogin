@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:productos_app/providers/providers.dart';
 import 'package:productos_app/services/services.dart';
 import 'package:productos_app/widgets/widgets.dart';
@@ -57,8 +58,20 @@ class _ProductScreensBody extends StatelessWidget {
                     top: 60,
                     right: 30,
                     child: IconButton(
-                      onPressed: (){
-                        //camara o galeria
+                      onPressed: () async{
+                        final picker = new ImagePicker();
+                        final XFile? pickedFile = await picker.pickImage(
+                              source: ImageSource.camera,
+                              imageQuality: 100  
+                      );
+
+                        if(pickedFile == null){
+                          print('No selecciono nada');
+                          return;
+                        }
+
+                        productService.updateSelectedProductImage(pickedFile.path);
+
                       },
                        icon: Icon(Icons.camera_alt_outlined, size: 40, color: Colors.white,)
                        ), 
@@ -73,9 +86,17 @@ class _ProductScreensBody extends StatelessWidget {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.save_outlined),
-          onPressed: () async{
+          child: productService.isSaving
+          ? CircularProgressIndicator(color: Colors.white)
+          :Icon(Icons.save_outlined),
+          onPressed: productService.isSaving
+          ?null
+          : () async{
             if(!productForm.isValidForm()) return;
+
+            final String? imageUrl = await productService.uploadImage();
+            
+            if(imageUrl != null) productForm.product.picture = imageUrl;
 
             await productService.saveOrCreateProduct(productForm.product);
           }),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:productos_app/models/models.dart';
@@ -10,6 +11,7 @@ class ProductService extends ChangeNotifier{
   final String _baseUrl = 'flutter-varios-90b0e-default-rtdb.firebaseio.com';
   final List<Product> products=[];
   Product? selecProduct;
+  File? newPictureFile;
 
   bool isLoading = true;
   bool isSaving = false;
@@ -87,6 +89,45 @@ class ProductService extends ChangeNotifier{
       this.products.add(product);
       return product.id!;
 
+  }
+
+  void updateSelectedProductImage( String path) {
+
+    this.selecProduct?.picture=path;
+    this.newPictureFile =File.fromUri(Uri(path: path));
+
+    notifyListeners();
+  }
+
+
+  Future<String?> uploadImage() async{
+
+    if(this.newPictureFile== null) return null;
+
+    this.isSaving= true;
+    notifyListeners();
+
+    final url= Uri.parse('https://api.cloudinary.com/v1_1/duejthzhn/image/upload?upload_preset=tbggtaon');
+
+    final imageUploadReques = http.MultipartRequest('POST',url);
+
+    final file=await http.MultipartFile.fromPath('file',newPictureFile!.path);
+
+    imageUploadReques.files.add(file);
+
+    final streamResponse = await imageUploadReques.send();
+    final resp = await http.Response.fromStream(streamResponse);
+
+    if(resp.statusCode !=200 && resp.statusCode!=201){
+      print('algo salio mal');
+      print(resp.body);
+      return null;
+    }
+
+    this.newPictureFile=null;
+    
+    final decodeData = json.decode(resp.body);
+    return decodeData['secure_url'];
   }
 
 }
