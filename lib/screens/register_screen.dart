@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
 import 'package:productos_app/providers/providers.dart';
 import 'package:productos_app/screens/screens.dart';
 import 'package:productos_app/services/services.dart';
+import 'package:provider/provider.dart';
 
 import 'package:productos_app/ui/input_decorations.dart';
 import 'package:productos_app/widgets/widgets.dart';
 
-class LoginScreen extends StatelessWidget {
+class RegisterScreen extends StatelessWidget {
 
-  static const String routeName = 'Login';
-  const LoginScreen({Key? key}) : super(key: key);
+  static const String routeName = 'Register';
+  const RegisterScreen({Key? key}) : super(key: key);
   
   @override
   Widget build(BuildContext context) {
@@ -25,7 +24,7 @@ class LoginScreen extends StatelessWidget {
                 child: Column(
                   children: [
                      const SizedBox(height: 10,),
-                     const Text('Login',style: TextStyle(fontWeight: FontWeight.w400,fontSize: 30),),
+                     const Text('Crear Cuenta',style: TextStyle(fontWeight: FontWeight.w400,fontSize: 30),),
                      const SizedBox(height: 30,),
 
                       ChangeNotifierProvider(
@@ -38,12 +37,12 @@ class LoginScreen extends StatelessWidget {
                 )
               ),
               const SizedBox(height: 100,),
-              TextButton(onPressed: () => Navigator.pushReplacementNamed(context, RegisterScreen.routeName),
+               TextButton(onPressed: () => Navigator.pushReplacementNamed(context, LoginScreen.routeName),
               style: ButtonStyle(
                 overlayColor: MaterialStateProperty.all(Colors.indigo.withOpacity(0.1)),
                 shape: MaterialStateProperty.all(StadiumBorder()),
               ),
-                child: const Text('Crear una nueva cuenta',style: TextStyle(fontSize: 20, color: Colors.black87),
+                child: const Text('Ya tienes una cuenta?',style: TextStyle(fontSize: 20, color: Colors.black87),
                 ),
               ),
               const SizedBox(height: 50,),
@@ -125,16 +124,16 @@ class _LoginForm extends StatelessWidget {
 
                 loginForm.isLoading=true;
                 
+               
 
-                final String? errorMessage= await authService.login(loginForm.email, loginForm.password);
+                final String? errorMessage= await authService.createUser(loginForm.email, loginForm.password);
 
                 if(errorMessage ==null){
                   
                   Navigator.pushReplacementNamed(context, HomeScreen.routeName);
                 }else{
                   //TODO: mostrar error en pantalla
-                  NotificationsService.showSnackbar('Error, revise su correo y/o Contraseña');
-                   loginForm.isLoading=false;
+                  loginForm.isLoading=false;
                 }
 
              })
